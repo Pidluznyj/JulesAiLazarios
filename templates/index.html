@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Pedidos de Compra</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Gerenciador de Pedidos de Compra</h2>
+
+    <!-- Formulário para Adicionar Pedido -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Novo Pedido</h5>
+            <form action="{{ url_for('adicionar') }}" method="POST">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" name="cliente" class="form-control" placeholder="Cliente" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="produto" class="form-control" placeholder="Produto" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="quantidade" class="form-control" placeholder="Qtd" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="preco_total" class="form-control" placeholder="Preço Total" required>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Rejeitado">Rejeitado</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Adicionar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Pedidos -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Lista de Pedidos</h5>
+            <table class="table table-striped table-hover mt-3">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço Total</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>{{ pedido.id }}</td>
+                        <td>{{ pedido.cliente }}</td>
+                        <td>{{ pedido.produto }}</td>
+                        <td>{{ pedido.quantidade }}</td>
+                        <td>R$ {{ "%.2f"|format(pedido.preco_total) }}</td>
+                        <td>
+                            <span class="badge {% if pedido.status == 'Aprovado' %}bg-success{% elif pedido.status == 'Rejeitado' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {{ pedido.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Formulário para Editar Status -->
+                            <form action="{{ url_for('editar', id=pedido.id) }}" method="POST" class="d-inline">
+                                <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    <option value="Pendente" {% if pedido.status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                                    <option value="Aprovado" {% if pedido.status == 'Aprovado' %}selected{% endif %}>Aprovado</option>
+                                    <option value="Rejeitado" {% if pedido.status == 'Rejeitado' %}selected{% endif %}>Rejeitado</option>
+                                </select>
+                            </form>
+
+                            <!-- Formulário para Deletar -->
+                            <form action="{{ url_for('deletar', id=pedido.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger ml-2">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Nenhum pedido encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
